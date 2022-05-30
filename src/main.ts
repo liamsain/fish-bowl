@@ -1,8 +1,7 @@
 import './style.css'
 import * as Pixi from 'pixi.js';
-import { BlurFilter } from '@pixi/filter-blur';
-import { createFishMachine } from './fishMachine/machine';
-import { StateType, EventType, IFishMachine } from './fishMachine/types';
+import { createFishMachine, IFishMachine } from './fishMachine/machine';
+import { StateType, EventType } from './fishMachine/types';
 import { getRndHex, getRandomArbitrary, loop, rndNum } from './utils';
 
 let width = 1200;
@@ -89,9 +88,6 @@ const createFish = (app: Pixi.Application): IFish => {
   app.stage.addChild(sp);
   const m = createFishMachine(sp);
   container.addChild(sp);
-
-// Blurs whatever is rendered by the container
-  // container.filters = [new BlurFilter(0.8)]
 
   return { sprite: sp, stateMachine: m }
 }
