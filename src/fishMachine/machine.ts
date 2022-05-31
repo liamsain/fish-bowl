@@ -7,12 +7,12 @@ export interface IFishMachine {
   current(): IState;
   update(dt: number): void;
   change(stateType: StateType, val: any): void;
-  onEvent(ev: EventType): void;
+  onEvent(ev: EventType, data: any): void;
 }
 
 export const createFishMachine: (sp: Pixi.Sprite) => IFishMachine = function (sprite: Pixi.Sprite) {
-  const patrol = createPatrolState();
-  const chasingFood = createChasingFoodState();
+  const patrol = createPatrolState(change);
+  const chasingFood = createChasingFoodState(change);
   const states = [
     {
       type: StateType.Patrol,
@@ -24,28 +24,30 @@ export const createFishMachine: (sp: Pixi.Sprite) => IFishMachine = function (sp
     }
   ];
   let state = patrol;
-  state.enter(sprite);
+  function change(stateType: StateType, val: any) {
+    const next = states.find(x => x.type === stateType);
+    if (next) {
+      state.exit();
+      state = next.state;
+      state.enter(sprite, val);
+    }
+  };
+    function onEvent(ev: EventType, data: any) {
+      const next = state.onEvent(ev);
+      if (next) {
+        change(next, data);
+      }
+    }
+
+  state.enter(sprite, null);
   return {
     current() {
       return state;
     },
+    change,
     update(dt: number) {
       state.update(dt)
     },
-    change(stateType: StateType, val: any) {
-      const next = states.find(x => x.type === stateType);
-      if (next) {
-        state.exit();
-        state = next.state;
-        // possibly give the state the change and onEvent functions
-        state.enter(val);
-      }
-    },
-    onEvent(ev: EventType) {
-      const next = state.onEvent(ev);
-      if (next) {
-        this.change(next, null);
-      }
-    }
+    onEvent
   };
 }

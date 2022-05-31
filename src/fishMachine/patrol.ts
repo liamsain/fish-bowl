@@ -1,8 +1,10 @@
 import { rndNum } from '../utils';
 import Tween from '@tweenjs/tween.js'
-import { IState, EventType } from './types';
+import { IState, EventType, StateType } from './types';
+import { Sprite } from 'pixi.js';
 
-export const createPatrolState: () => IState = function () {
+export const createPatrolState = 
+function (changeState: (st: StateType, data: any) => void) {
   let entity: any = null;
   const minX = 50;
   const minY = 50;
@@ -58,10 +60,13 @@ export const createPatrolState: () => IState = function () {
         tween.start();
       });
     },
-    onEvent(ev: EventType) {
+    onEvent(ev: EventType) : StateType|void {
+      if (ev === EventType.FoodAvailable) {
+        return StateType.ChasingFood
+      }
     },
-    enter(e: any) {
-      entity = e;
+    enter(sp: Sprite, data: any = null) {
+      entity = sp;
       tween = new Tween.Tween({ x: entity.x, y: entity.y })
       tween.easing(easing)
       orientate();

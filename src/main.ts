@@ -4,8 +4,16 @@ import { createFishMachine, IFishMachine } from './fishMachine/machine';
 import { StateType, EventType } from './fishMachine/types';
 import { getRndHex, getRandomArbitrary, loop, rndNum } from './utils';
 
+interface IFish {
+    sprite: Pixi.Sprite;
+    stateMachine: IFishMachine
+}
+
+const fishies: IFish[] = []
+
 let width = 1200;
 let height = 800;
+const fishCount = 20;
 const food = [];
 const container = new Pixi.Container();
 
@@ -31,26 +39,25 @@ const makeFood = (x: number, y: number): Pixi.Sprite => {
   const graphics = new Pixi.Graphics();
   graphics.lineStyle(0); 
   graphics.beginFill(0xedcc11, 1);
-  graphics.drawCircle(100, 250, 10);
+  graphics.drawCircle(100, 250, 5);
   graphics.endFill();
   const texture = app.renderer.generateTexture(graphics);
   const sp = new Pixi.Sprite(texture);
   sp.x = x;
   sp.y = y;
   sp.anchor.set(0.5, 0.5)
-  // app.stage.addChild(sp);
+  app.stage.addChild(sp);
+  fishies.forEach(x => {
+    x.stateMachine.onEvent(EventType.FoodAvailable, sp);
+  });
   return sp;
 }
 
 app.view.onclick = (ev) => {
-  console.log(ev);
   const foodBit = makeFood(ev.clientX, ev.clientY);
   food.push(foodBit);
 }
-interface IFish {
-    sprite: Pixi.Sprite;
-    stateMachine: IFishMachine
-}
+
 const createFish = (app: Pixi.Application): IFish => {
   const gr = new Pixi.Graphics();
   const col = getRndHex();
@@ -92,12 +99,10 @@ const createFish = (app: Pixi.Application): IFish => {
   return { sprite: sp, stateMachine: m }
 }
 
-const fishies: IFish[] = [
-];
-loop(250, () => {
+loop(fishCount, () => {
   fishies.push(createFish(app))
 });
-// app.ticker.maxFPS = 1;
+// app.ticker.maxFPS = 59;
 
 
 

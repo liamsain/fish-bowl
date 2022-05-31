@@ -1,38 +1,48 @@
-import { IState, EventType } from './types';
-import { rndNum } from '../utils';
+import { IState, EventType, StateType } from './types';
+import { rndNum, pointSpriteTowardsDest } from '../utils';
+import {Sprite } from 'pixi.js';
 import Tween from '@tweenjs/tween.js'
-interface IEnterArg {
-  foodLocation: {x: number, y: number};
-  entity: any;
-}
-export const createChasingFoodState: () => IState = function () {
-  let foodLocation = {x: 0, y: 0};
-  let entity: any = null;
+import { spritesIntersect } from '../utils';
+
+export const createChasingFoodState = 
+function (changeState: (st: StateType, data: any) => void) {
+  let foodSprite: Sprite|null = null;
+  let entity: Sprite|null = null;
   let tween = new Tween.Tween({ x: 0, y: 0 })
-  const easing = Tween.Easing.Sinusoidal.Out;
+  const easing = Tween.Easing.Cubic.Out;
 
   return {
     update(dt: number) {
       tween.update();
       tween.onUpdate(val => {
-        entity.x = val.x;
-        entity.y = val.y;
+        if (entity) {
+          entity.x = val.x;
+          entity.y = val.y;
+        }
+        if (entity && foodSprite && !foodSprite.destroyed) {
+          if (spritesIntersect(entity, foodSprite)) {
+            foodSprite.destroy();
+            tween.stop();
+            changeState(StateType.Patrol, null);
+          }
+        }
       })
       tween.onComplete(() => {
-        // exit state
+        changeState(StateType.Patrol, null);
       });
 
     },
     onEvent(ev: EventType) {
 
     },
-    enter(arg: IEnterArg) {
-      foodLocation = arg.foodLocation;
-      tween = new Tween.Tween(foodLocation)
+    enter(sp: Sprite, foodSp: Sprite) {
+      foodSprite = foodSp;
+      tween = new Tween.Tween({x: sp.x, y: sp.y})
+      pointSpriteTowardsDest(sp, {x: foodSprite.x, y: foodSprite.y});
       tween.easing(easing)
       const duration = rndNum(1000, 3000)
-      tween.to(foodLocation, duration);
-      entity = arg.entity;
+      tween.to({x: foodSprite.x, y: foodSprite.y}, duration);
+      entity = sp;
       tween.start();
     },
     exit() {
