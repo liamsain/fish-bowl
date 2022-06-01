@@ -9,7 +9,7 @@ function (changeState: (st: StateType, data: any) => void) {
   let foodSprite: Sprite|null = null;
   let entity: Sprite|null = null;
   let tween = new Tween.Tween({ x: 0, y: 0 })
-  const easing = Tween.Easing.Cubic.Out;
+  const easing = Tween.Easing.Quintic.Out;
 
   return {
     update(dt: number) {
@@ -40,7 +40,7 @@ function (changeState: (st: StateType, data: any) => void) {
       tween = new Tween.Tween({x: sp.x, y: sp.y})
       pointSpriteTowardsDest(sp, {x: foodSprite.x, y: foodSprite.y});
       tween.easing(easing)
-      const duration = rndNum(1000, 3000)
+      const duration = rndNum(2000, 4000)
       tween.to({x: foodSprite.x, y: foodSprite.y}, duration);
       entity = sp;
       tween.start();

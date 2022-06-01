@@ -1,5 +1,3 @@
-import { State } from "pixi.js";
-
 export {}
 /* 
 ================
@@ -25,88 +23,9 @@ export {}
   - The machine immediately is in the new state, ready to process the next event.
 =================
 */
-interface Sprite {}
-interface StateArg {
-  changeState: (state: any) => void;
-  onEvent: () => void;
-  sprite?: any;
-}
-const createPatrolState = function(arg: StateArg) {
-  let change = arg.changeState;
-  let onEvent = arg.onEvent;
-  let sprite = arg.sprite;
-  return {
-    update() {},
-    onEvent() {},
-    enter(sp: Sprite|null) {
-      if (sp) {
-        sprite = sp;
-      }
-    },
-    exit() {}
-  };
-}
-const createChasingFoodState = function(arg: StateArg) {
-  let change = arg.changeState;
-  let onEvent = arg.onEvent;
-  let sprite = arg.sprite;
-  return {
-    update() {
-      change('patrol');
-    },
-    onEvent() {},
-    enter(sp: Sprite|null) {
-      if (sp) {
-        sprite = sp;
-      }
-    },
-    exit() {}
-  };
-}
-const createMachine = function(sp: Sprite) {
-  const patrol = createPatrolState({changeState: change, onEvent});
-  const chasingFood = createChasingFoodState({changeState: change, onEvent});
-  let state = patrol;
-  const states = [
-    {
-      type: 'Patrol',
-      state: patrol
-    },
-    {
-      type: 'Chasing',
-      state: chasingFood
-    }
-  ];
 
-  function change(stateType: any, data: any) {
-    const next = states.find(x => x.type === stateType);
-    if (next) {
-      state.exit();
-      state = next.state;
-      state.enter(sprite, val);
-    }
-
-    state = state;
-  }
-  function onEvent() {
-
-  }
-
-  state.enter(sp);
-  return {
-    change,
-    onEvent,
-    update() {
-      state.update();
-    },
-    current() {
-      return state;
-    },
-
-  };
-}
-//finite state machine from youtube
 /*
+// Finite state machine from youtube:
 export const machine = {
   state: "Idle",
   transitions: {

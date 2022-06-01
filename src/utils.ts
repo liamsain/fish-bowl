@@ -1,4 +1,4 @@
-import * as Pixi from 'pixi.js';
+import { Sprite } from 'pixi.js';
 export function rndNum(min = 0, max = 10) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -19,16 +19,23 @@ export function loop(to: number, callback: (ind: number) => void) {
   }
 }
 
-export function spritesIntersect(a: Pixi.Sprite, b: Pixi.Sprite) {
-  const aBox = a.getBounds();
-  const bBox = b.getBounds();
-  return aBox.x + aBox.width > bBox.x &&
-    aBox.x < bBox.x + bBox.width &&
-    aBox.y + aBox.height > bBox.y &&
-    aBox.y < bBox.y + bBox.height;
+export function spritesIntersect(sp1: Sprite, sp2: Sprite) {
+  const a = sp1.getBounds();
+  const b = sp2.getBounds();
+  const rightmostLeft = a.left < b.left ? b.left : a.left;
+  const leftmostRight = a.right > b.right ? b.right : a.right;
+
+  if (leftmostRight <= rightmostLeft) {
+    return false;
+  }
+
+  const bottommostTop = a.top < b.top ? b.top : a.top;
+  const topmostBottom = a.bottom > b.bottom ? b.bottom : a.bottom;
+
+  return topmostBottom > bottommostTop;
 }
 
-export const pointSpriteTowardsDest = (sp: Pixi.Sprite, dest: { x: number, y: number }) => {
+export const pointSpriteTowardsDest = (sp: Sprite, dest: { x: number, y: number }) => {
   const goingRight = dest.x > sp.x;
   if (goingRight) {
     const currentScale = sp.scale.x;

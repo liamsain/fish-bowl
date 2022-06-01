@@ -1,7 +1,9 @@
 import { createPatrolState } from './patrol';
 import { createChasingFoodState } from './chasingFood';
 import { StateType, EventType, IState } from './types';
-import * as Pixi from 'pixi.js';
+import { Sprite, Container } from 'pixi.js';
+
+
 
 export interface IFishMachine {
   current(): IState;
@@ -10,7 +12,12 @@ export interface IFishMachine {
   onEvent(ev: EventType, data: any): void;
 }
 
-export const createFishMachine: (sp: Pixi.Sprite) => IFishMachine = function (sprite: Pixi.Sprite) {
+export interface IFish {
+  machine: IFishMachine;
+  container: Container;
+}
+
+export const createFishMachine: (sp: Sprite) => IFishMachine = function (sprite: Sprite) {
   const patrol = createPatrolState(change);
   const chasingFood = createChasingFoodState(change);
   const states = [

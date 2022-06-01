@@ -1,26 +1,24 @@
 import './style.css'
-import * as Pixi from 'pixi.js';
+import { Sprite, Application, Graphics, Text } from 'pixi.js';
 import { createFishMachine, IFishMachine } from './fishMachine/machine';
-import { StateType, EventType } from './fishMachine/types';
+import { EventType } from './fishMachine/types';
 import { getRndHex, getRandomArbitrary, loop, rndNum } from './utils';
 
 interface IFish {
-    sprite: Pixi.Sprite;
+    sprite: Sprite;
     stateMachine: IFishMachine
 }
 
 const fishies: IFish[] = []
+const fishCount = 20;
 
 let width = 1200;
 let height = 800;
-const fishCount = 20;
 const food = [];
-const container = new Pixi.Container();
 
-let app = new Pixi.Application({ width, height, backgroundColor: 100000, antialias: true });
+let app = new Application({ width, height, backgroundColor: 100000, antialias: true });
 app.resize()
 document.body.appendChild(app.view);
-app.stage.addChild(container);
 
 const listen = (listenerType: string, callback: any) => {
   window.addEventListener(listenerType, callback);
@@ -35,14 +33,14 @@ listen('resize', () => {
 
 app.stage.interactive = true;
 
-const makeFood = (x: number, y: number): Pixi.Sprite => {
-  const graphics = new Pixi.Graphics();
+const makeFood = (x: number, y: number): Sprite => {
+  const graphics = new Graphics();
   graphics.lineStyle(0); 
   graphics.beginFill(0xedcc11, 1);
   graphics.drawCircle(100, 250, 5);
   graphics.endFill();
   const texture = app.renderer.generateTexture(graphics);
-  const sp = new Pixi.Sprite(texture);
+  const sp = new Sprite(texture);
   sp.x = x;
   sp.y = y;
   sp.anchor.set(0.5, 0.5)
@@ -54,12 +52,13 @@ const makeFood = (x: number, y: number): Pixi.Sprite => {
 }
 
 app.view.onclick = (ev) => {
+  console.log('view click');
   const foodBit = makeFood(ev.clientX, ev.clientY);
   food.push(foodBit);
 }
 
-const createFish = (app: Pixi.Application): IFish => {
-  const gr = new Pixi.Graphics();
+const createFish = (app: Application): IFish => {
+  const gr = new Graphics();
   const col = getRndHex();
   // draw tail
   const path = [570, 250, 470, 200, 490, 250, 470, 310];
@@ -81,20 +80,18 @@ const createFish = (app: Pixi.Application): IFish => {
   gr.endFill();
 
 
-  // gr.lineStyle(0);
   const texture = app.renderer.generateTexture(gr);
-  const sp = new Pixi.Sprite(texture);
+  const sp = new Sprite(texture);
   sp.x = rndNum(-1000, 2800);
   sp.y = rndNum(-1000, 2000);
   sp.scale.set(getRandomArbitrary(0.2, 0.65));
   sp.anchor.set(0.5, 0.5)
   sp.interactive = true;
-  sp.on('pointerdown', () => {
-    console.log('you clicked a fish!', sp);
+  sp.on('pointerdown', ev => {
   });
+
   app.stage.addChild(sp);
   const m = createFishMachine(sp);
-  container.addChild(sp);
 
   return { sprite: sp, stateMachine: m }
 }
@@ -102,8 +99,6 @@ const createFish = (app: Pixi.Application): IFish => {
 loop(fishCount, () => {
   fishies.push(createFish(app))
 });
-// app.ticker.maxFPS = 59;
-
 
 
 let elapsed = 0.0;

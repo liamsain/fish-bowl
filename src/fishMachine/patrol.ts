@@ -1,4 +1,4 @@
-import { rndNum } from '../utils';
+import { rndNum, pointSpriteTowardsDest } from '../utils';
 import Tween from '@tweenjs/tween.js'
 import { IState, EventType, StateType } from './types';
 import { Sprite } from 'pixi.js';
@@ -16,32 +16,6 @@ function (changeState: (st: StateType, data: any) => void) {
   let dest: any = { x: rndNum(minX, maxX), y: rndNum(minY, maxY) };
   let tween = new Tween.Tween({ x: 0, y: 0 })
   const easing = Tween.Easing.Sinusoidal.Out;
-  const orientate = () => {
-    const goingRight = dest.x > entity.x;
-    if (goingRight) {
-      const currentScale = entity.scale.x;
-      entity.scale.x = Math.abs(currentScale);
-    } else {
-      const currentScale = entity.scale.x;
-      entity.scale.x = -Math.abs(currentScale);
-    }
-    entity.rotation = 0
-    if (dest.y > entity.y) {
-      // going down
-      if (goingRight) {
-        entity.rotation += 0.1
-      } else {
-        entity.rotation -= 0.1
-      }
-    } else if (dest.y < entity.y) {
-      if (goingRight) {
-        entity.rotation -= 0.1
-      } else {
-        entity.rotation += 0.1
-      }
-    }
-
-  }
 
   return {
     update(dt: number) {
@@ -55,7 +29,7 @@ function (changeState: (st: StateType, data: any) => void) {
         dest = { x: rndNum(minX, maxX), y: rndNum(minY, maxY) };
         tween = new Tween.Tween({ x: entity.x, y: entity.y })
         tween.easing(easing)
-        orientate();
+        pointSpriteTowardsDest(entity, dest);
         tween.to(dest, rndNum(minDuration, maxDuration));
         tween.start();
       });
@@ -69,10 +43,9 @@ function (changeState: (st: StateType, data: any) => void) {
       entity = sp;
       tween = new Tween.Tween({ x: entity.x, y: entity.y })
       tween.easing(easing)
-      orientate();
+      pointSpriteTowardsDest(sp, dest);
       const duration = rndNum(3000, 25000)
       tween.to(dest, duration);
-
       tween.start();
     },
     exit() {
