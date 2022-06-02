@@ -1,23 +1,10 @@
 import { createPatrolState } from './patrol';
 import { createChasingFoodState } from './chasingFood';
-import { StateType, EventType, IState } from './types';
-import { Sprite, Container } from 'pixi.js';
+import { StateType, EventType, FishSprite } from './types';
 
+const hungerRate = 0.01;
 
-
-export interface IFishMachine {
-  current(): IState;
-  update(dt: number): void;
-  change(stateType: StateType, val: any): void;
-  onEvent(ev: EventType, data: any): void;
-}
-
-export interface IFish {
-  machine: IFishMachine;
-  container: Container;
-}
-
-export const createFishMachine: (sp: Sprite) => IFishMachine = function (sprite: Sprite) {
+export const createFishMachine = function (sprite: FishSprite) {
   const patrol = createPatrolState(change);
   const chasingFood = createChasingFoodState(change);
   const states = [
@@ -39,7 +26,7 @@ export const createFishMachine: (sp: Sprite) => IFishMachine = function (sprite:
       state.enter(sprite, val);
     }
   };
-    function onEvent(ev: EventType, data: any) {
+    function onEvent(ev: EventType, data: any = null) {
       const next = state.onEvent(ev);
       if (next) {
         change(next, data);
@@ -53,6 +40,9 @@ export const createFishMachine: (sp: Sprite) => IFishMachine = function (sprite:
     },
     change,
     update(dt: number) {
+      if (sprite.health > 0) {
+        sprite.health -= hungerRate;
+      }
       state.update(dt)
     },
     onEvent
